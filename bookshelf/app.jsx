@@ -2,7 +2,7 @@
 const { useState: useStateApp, useEffect: useEffectApp } = React;
 
 // Base status-bar darkness per screen (dark screens → white status text).
-const DARK_SCREENS = { passport: true, paywall: true };
+const DARK_SCREENS = { passport: true };
 
 const TABS = [
   { id: 'home', label: 'Browse', icon: (a) => (
@@ -119,7 +119,6 @@ function BookshelfApp() {
     case 'passport':   screen = <PassportScreen nav={nav} bookId={params.bookId}/>; break;
     case 'add':        screen = <AddBookScreen nav={nav}/>; break;
     case 'thread':     screen = <ThreadScreen nav={nav} threadId={params.threadId}/>; break;
-    case 'paywall':    screen = <PaywallScreen nav={nav}/>; break;
     case 'terms':      screen = <LegalDocScreen nav={nav} doc="terms"/>; break;
     case 'privacy':    screen = <LegalDocScreen nav={nav} doc="privacy"/>; break;
     case 'privacyData':screen = <PrivacyDataScreen nav={nav} consent={consent || {}} setConsent={setConsent}/>; break;

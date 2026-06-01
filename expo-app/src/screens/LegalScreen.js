@@ -10,7 +10,7 @@ const TERMS = [
   { h: '3. What My Bookshelf is — and is not', p: 'My Bookshelf is a platform for neighbours to discover, list, give away, sell and exchange second-hand books. We are an intermediary only — not a party to any transaction.' },
   { h: '4. Listings & prices', p: 'You are solely responsible for your listings. Book metadata from Open Library is provided "as is".' },
   { h: '5. In-person exchanges', p: 'All handovers happen in person. YOU ATTEND MEETINGS AT YOUR OWN RISK. Meet in public places and never share your exact address.' },
-  { h: '6. Subscription & trial', p: 'New accounts receive a 3-month free trial. After the trial, continued access requires a subscription (€29/year). Statutory withdrawal rights are respected.' },
+  { h: '6. A free service', p: 'My Bookshelf is free to use. There is no subscription or fee to list, swap, give away or request books. Any future paid features would be optional and clearly announced in advance.' },
   { h: '7. Book Passport', p: 'Passport entries may remain visible after a book passes to a new owner. By submitting a review or note you grant us a licence to display it as part of the Passport.' },
   { h: '8. Limitation of liability', p: 'To the maximum extent permitted by law, we are not liable for indirect or consequential damages. Our total aggregate liability is capped at €50 or fees paid in the 12 months prior to the claim.' },
   { h: '9. Governing law', p: 'These Terms are governed by the laws of [jurisdiction]. EU consumers may use the European Commission\'s Online Dispute Resolution platform.' },
@@ -18,9 +18,9 @@ const TERMS = [
 
 const PRIVACY = [
   { h: '1. Data controller', p: '[Company Legal Name], [registered address]. DPO contact: [dpo@yourcompany.com].' },
-  { h: '2. Data we collect', p: 'Name, email (not shared), photo, bio, district/city (never exact address), listings, reviews, messages, payment status (via Stripe — no full card numbers stored).' },
+  { h: '2. Data we collect', p: 'Name, email (not shared), photo, bio, district/city (never exact address), listings, reviews, and messages. We do not collect or process any payment data.' },
   { h: '3. Legal bases (GDPR)', p: 'Contract — to run your account. Consent — for optional analytics and recommendations. Legitimate interests — security and service improvement. Legal obligation — accounting and law.' },
-  { h: '4. Who we share it with', p: 'Other users see your public profile, district, listings and Passport entries. Processors (Stripe, hosting, Open Library) act on our instructions. We do not sell your data.' },
+  { h: '4. Who we share it with', p: 'Other users see your public profile, district, listings and Passport entries. Processors (hosting, Open Library) act on our instructions. We do not sell your data.' },
   { h: '5. Your rights', p: 'Access, rectify, erase, restrict, object, and port your data anytime via Profile → Privacy & data, or by contacting us. You may also lodge a complaint with your local supervisory authority.' },
   { h: '6. Retention', p: 'We delete or anonymise personal data when you close your account. Passport entries may be kept in anonymised form to preserve each book\'s history.' },
 ];

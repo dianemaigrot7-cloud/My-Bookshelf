@@ -17,7 +17,6 @@ import ThreadScreen     from '../screens/ThreadScreen';
 import ProfileScreen    from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import NeighboursScreen from '../screens/NeighboursScreen';
-import PaywallScreen    from '../screens/PaywallScreen';
 import SignupScreen     from '../screens/SignupScreen';
 import ConsentScreen    from '../screens/ConsentScreen';
 import LegalScreen, { PrivacyDataScreen } from '../screens/LegalScreen';
@@ -106,7 +105,6 @@ function ProfileStackNav() {
     <Stack.Navigator screenOptions={noHeader}>
       <Stack.Screen name="ProfileMain" component={ProfileScreen}/>
       <Stack.Screen name="EditProfile" component={EditProfileScreen}/>
-      <Stack.Screen name="Paywall"     component={PaywallScreen}/>
       <Stack.Screen name="PrivacyData" component={PrivacyDataScreen}/>
       <Stack.Screen name="Legal"       component={LegalScreen}/>
       <Stack.Screen name="Privacy"     component={LegalScreen}

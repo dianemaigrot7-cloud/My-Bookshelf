@@ -1,4 +1,4 @@
-// bookshelf/screens-misc.jsx — Library, Messages + thread, Profile, Paywall.
+// bookshelf/screens-misc.jsx — Library, Messages + thread, Profile.
 const { useState: useStateM } = React;
 
 // ── My Library: private "reading" shelf → publish to public shelf ─────
@@ -211,14 +211,11 @@ function ProfileScreen({ userId, nav, me }) {
         </div>
 
         {isMe && (
-          <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-            <div style={{ flex: 1, background: 'rgba(216,164,65,0.14)', borderRadius: 14, padding: '12px 14px' }}>
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 700 }}>FREE TRIAL</div>
-              <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--ink)', marginTop: 2 }}>62 days left</div>
-            </div>
-            <div className="bs-press" onClick={() => nav.push('paywall')} style={{ flex: 1, background: 'var(--forest)', borderRadius: 14, padding: '12px 14px', color: 'var(--cream)' }}>
-              <div style={{ fontSize: 11.5, opacity: .7, fontWeight: 700 }}>MEMBERSHIP</div>
-              <div style={{ fontSize: 14.5, fontWeight: 700, marginTop: 2 }}>€29 / year →</div>
+          <div style={{ background: 'rgba(77,107,80,0.12)', borderRadius: 14, padding: '14px 16px', marginTop: 18 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--moss)', fontWeight: 700 }}>YOUR MEMBERSHIP</div>
+            <div className="bs-serif" style={{ fontSize: 19, color: 'var(--forest)', marginTop: 4 }}>Free forever 🌱</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, lineHeight: 1.45 }}>
+              Unlimited listings, swaps, passports and messages — no subscription, ever.
             </div>
           </div>
         )}
@@ -261,44 +258,4 @@ function ProfileScreen({ userId, nav, me }) {
   );
 }
 
-// ── Paywall (trial ended → Stripe-style) ──────────────────────────────
-function PaywallScreen({ nav }) {
-  return (
-    <div className="bs-screen" style={{ background: 'linear-gradient(180deg,var(--forest),#26392c)' }}>
-      <TopBar onBack={nav.back} dark/>
-      <div className="bs-scroll" style={{ padding: '0 24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <ShelfMark size={56} ember={false}/>
-        <div className="bs-serif" style={{ fontSize: 30, color: 'var(--cream)', marginTop: 18, lineHeight: 1.15 }}>
-          Keep your shelf <span style={{ fontStyle: 'italic', color: 'var(--clay)' }}>open</span>
-        </div>
-        <p style={{ fontSize: 14.5, color: 'rgba(241,232,214,0.8)', marginTop: 10, lineHeight: 1.55, maxWidth: 300 }}>
-          Your 3-month trial has ended. Continue sharing, swapping, and following your books across the world.
-        </p>
-
-        <div style={{ width: '100%', background: 'var(--card)', borderRadius: 22, padding: 22, marginTop: 26, boxShadow: '0 16px 40px rgba(0,0,0,0.25)' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 6 }}>
-            <span className="bs-serif" style={{ fontSize: 44, color: 'var(--forest)' }}>€29</span>
-            <span style={{ fontSize: 15, color: 'var(--muted)', fontWeight: 600 }}>/ year</span>
-          </div>
-          <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>That's €2.42 a month</div>
-          <div style={{ textAlign: 'left', margin: '18px 0', display: 'flex', flexDirection: 'column', gap: 11 }}>
-            {['Unlimited listings & swaps','Full book passports & journeys','Message every neighbour','Map of readers near you'].map(f => (
-              <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5, color: 'var(--ink)' }}>
-                <span style={{ width: 20, height: 20, borderRadius: 99, background: 'var(--moss)', display: 'grid', placeItems: 'center', flex: 'none' }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </span>{f}
-              </div>
-            ))}
-          </div>
-          <Btn full kind="primary" onClick={() => nav.back()}
-            icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#fff" strokeWidth="2"/><path d="M2 9h20" stroke="#fff" strokeWidth="2"/></svg>}>
-            Continue with Stripe
-          </Btn>
-          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 12 }}>Cancel anytime · secure payment</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-Object.assign(window, { LibraryScreen, MessagesScreen, ThreadScreen, ProfileScreen, PaywallScreen });
+Object.assign(window, { LibraryScreen, MessagesScreen, ThreadScreen, ProfileScreen });

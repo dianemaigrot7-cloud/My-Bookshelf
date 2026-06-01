@@ -56,7 +56,6 @@ supabase/
 | Profile | `ProfileScreen.js` |
 | Edit Profile | `EditProfileScreen.js` |
 | Neighbours Map | `NeighboursScreen.js` |
-| Paywall | `PaywallScreen.js` |
 | Signup (age-gate) | `SignupScreen.js` |
 | GDPR Consent | `ConsentScreen.js` |
 | Terms / Privacy | `LegalScreen.js` |
@@ -67,6 +66,6 @@ supabase/
 - **Open Library** — already wired: `src/lib/openLibrary.js` → `lookupISBN()` is called live during the Add Book scan flow
 - **Supabase auth** — email/password via `signUp` / `signInWithPassword`; session persisted in `expo-secure-store`
 - **Supabase realtime** — messages table subscribed for live chat updates
-- **Stripe** — add `expo-stripe-sdk` and replace the Paywall "Continue" button with a real Checkout session
+- **Free app** — no subscription, no in-app payment. Book prices are settled directly between users in person.
 - **Maps** — replace the `NeighboursScreen` faux map with `react-native-maps` + Mapbox/Google; pin to district centroid
 - **Camera / barcode** — `expo-camera` + `CameraView` already in `AddBookScreen.js`; reads EAN-13/ISBN barcodes natively

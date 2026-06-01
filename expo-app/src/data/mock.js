@@ -4,8 +4,7 @@
 export const MOCK_USERS = {
   me: { id: 'me', name: 'Sophie Martin', photo_url: 'https://i.pravatar.cc/150?img=47',
     bio: 'Bibliophile, coffee addict, proud Alfama resident. Always happy to swap a good story!',
-    district: 'Alfama', city: 'Lisbon', country: '🇵🇹', is_subscribed: false,
-    trial_start_date: new Date().toISOString() },
+    district: 'Alfama', city: 'Lisbon', country: '🇵🇹' },
   u1: { id: 'u1', name: 'Carlos Mendes', photo_url: 'https://i.pravatar.cc/150?img=12',
     bio: 'History lover and weekend cyclist. My shelf is full of biographies.',
     district: 'Mouraria', city: 'Lisbon', country: '🇵🇹' },

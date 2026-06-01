@@ -13,8 +13,6 @@ create table if not exists profiles (
   district         text default '',
   city             text default '',
   country          text default '',
-  is_subscribed    boolean not null default false,
-  trial_start_date timestamptz not null default now(),
   created_at       timestamptz not null default now()
 );
 

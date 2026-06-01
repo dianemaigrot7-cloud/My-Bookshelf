@@ -13,13 +13,6 @@ export default function ProfileScreen({ route, navigation }) {
   const user = isMe ? me : (MOCK_USERS[viewingId] || MOCK_USERS.me);
   const shelf = isMe ? MOCK_MY_BOOKS : MOCK_BOOKS.filter(b => b.current_owner === viewingId);
 
-  const trialDaysLeft = () => {
-    if (!user?.trial_start_date) return 62;
-    const start = new Date(user.trial_start_date);
-    const end   = new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000);
-    return Math.max(0, Math.ceil((end - Date.now()) / (1000 * 60 * 60 * 24)));
-  };
-
   return (
     <SafeAreaView style={s.screen} edges={['top']}>
       {!isMe && <TopBar onBack={() => navigation.goBack()} title=""/>}
@@ -37,18 +30,12 @@ export default function ProfileScreen({ route, navigation }) {
           <Text style={s.bio}>{user?.bio}</Text>
         </View>
 
-        {/* My account cards */}
+        {/* Free-for-everyone badge */}
         {isMe && (
-          <View style={s.cards}>
-            <View style={s.trialCard}>
-              <Text style={s.cardEye}>FREE TRIAL</Text>
-              <Text style={s.cardVal}>{trialDaysLeft()} days left</Text>
-            </View>
-            <TouchableOpacity style={s.memberCard} activeOpacity={0.82}
-              onPress={() => navigation.navigate('Paywall')}>
-              <Text style={[s.cardEye, { color: 'rgba(241,232,214,0.7)' }]}>MEMBERSHIP</Text>
-              <Text style={[s.cardVal, { color: colors.cream }]}>€29 / year →</Text>
-            </TouchableOpacity>
+          <View style={s.freeCard}>
+            <Text style={s.freeEye}>YOUR MEMBERSHIP</Text>
+            <Text style={s.freeVal}>Free forever 🌱</Text>
+            <Text style={s.freeDesc}>Unlimited listings, swaps, passports and messages — no subscription, ever.</Text>
           </View>
         )}
 
@@ -120,11 +107,10 @@ const s = StyleSheet.create({
   name:       { fontFamily: fonts.serif, fontSize: 25, color: colors.ink, marginTop: 14 },
   location:   { fontFamily: fonts.sansSb, fontSize: 13, color: colors.moss, marginTop: 4 },
   bio:        { fontFamily: fonts.sans, fontSize: 14, color: colors.ink, opacity: 0.8, marginTop: 12, lineHeight: 21, textAlign: 'center', maxWidth: 280 },
-  cards:      { flexDirection: 'row', gap: 10, marginTop: 18 },
-  trialCard:  { flex: 1, backgroundColor: 'rgba(216,164,65,0.14)', borderRadius: 14, padding: 12 },
-  memberCard: { flex: 1, backgroundColor: colors.forest, borderRadius: 14, padding: 12 },
-  cardEye:    { fontFamily: fonts.sansBd, fontSize: 11.5, color: colors.muted },
-  cardVal:    { fontFamily: fonts.sansBd, fontSize: 14.5, color: colors.ink, marginTop: 2 },
+  freeCard:   { backgroundColor: 'rgba(77,107,80,0.12)', borderRadius: 14, padding: 16, marginTop: 18 },
+  freeEye:    { fontFamily: fonts.sansBd, fontSize: 11.5, color: colors.moss },
+  freeVal:    { fontFamily: fonts.serif, fontSize: 19, color: colors.forest, marginTop: 4 },
+  freeDesc:   { fontFamily: fonts.sans, fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
   section:    { marginTop: 24 },
   grid:       { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 12 },
   gridItem:   { width: '30%' },
