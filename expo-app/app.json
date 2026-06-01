@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "mybookshelf",
     "userInterfaceStyle": "light",
     "splash": {
       "backgroundColor": "#2f4a36"
@@ -12,9 +13,16 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.mybookshelf.app",
+      "buildNumber": "1",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Used to show books near your neighbourhood.",
-        "NSCameraUsageDescription": "Used to scan ISBN barcodes on book covers."
+        "NSLocationWhenInUseUsageDescription": "My Bookshelf uses your location to show books and readers in your neighbourhood. Only your district is shared — never your exact address.",
+        "NSCameraUsageDescription": "My Bookshelf uses the camera to scan the ISBN barcode on the back of your book so we can auto-fill its details.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
       }
     },
     "android": {
