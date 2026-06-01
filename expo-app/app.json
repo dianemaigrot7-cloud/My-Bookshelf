@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "My Bookshelf",
+    "slug": "my-bookshelf",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#2f4a36"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mybookshelf.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Used to show books near your neighbourhood.",
+        "NSCameraUsageDescription": "Used to scan ISBN barcodes on book covers."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#2f4a36"
+      },
+      "package": "com.mybookshelf.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-location",
+      "expo-camera",
+      "expo-barcode-scanner"
+    ]
+  }
+}
