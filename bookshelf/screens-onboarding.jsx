@@ -1,5 +1,5 @@
 // bookshelf/screens-onboarding.jsx — Signup age-gate, EditProfile, CookieBanner.
-const { useState: useStateO, useRef: useRefO } = React;
+const { useState: useStateO } = React;
 
 const MIN_AGE = 16;
 
@@ -12,15 +12,101 @@ function calcAge(dob) {
   return age;
 }
 
+// Reverse-geocode lat/lng → { district, city } using OpenStreetMap Nominatim (no API key).
+async function reverseGeocode(lat, lon) {
+  const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1`;
+  const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+  if (!res.ok) throw new Error('Geocoding failed');
+  const data = await res.json();
+  const a = data.address || {};
+  // Nominatim returns neighbourhood > suburb > district > borough > city_district in order of precision.
+  const district =
+    a.neighbourhood || a.suburb || a.district || a.borough ||
+    a.city_district || a.county || '';
+  const city = a.city || a.town || a.village || a.municipality || '';
+  return { district, city };
+}
+
+// ── Shared "Use my location" button ──────────────────────────────────
+function LocationButton({ onResult, onError }) {
+  const [status, setStatus] = useStateO('idle'); // idle | loading | done | error
+
+  const detect = () => {
+    if (!navigator.geolocation) {
+      onError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setStatus('loading');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const loc = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+          setStatus('done');
+          onResult(loc);
+        } catch {
+          setStatus('error');
+          onError('Could not look up your location. Please enter it manually.');
+        }
+      },
+      (err) => {
+        setStatus('error');
+        const msg = err.code === 1
+          ? 'Location permission denied. Please allow access or enter your neighbourhood manually.'
+          : 'Could not get your location. Please enter it manually.';
+        onError(msg);
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
+  const label = { idle: 'Use my location', loading: 'Locating…', done: '✓ Location detected', error: 'Try again' };
+  const bg = status === 'done' ? 'rgba(77,107,80,0.1)' : 'var(--cream)';
+  const color = status === 'done' ? 'var(--moss)' : 'var(--forest)';
+
+  return (
+    <div className="bs-press" onClick={status === 'loading' ? undefined : detect}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        padding: '11px 16px', borderRadius: 13, background: bg, border: '1px solid var(--line)',
+        fontSize: 14, fontWeight: 700, color, opacity: status === 'loading' ? 0.6 : 1,
+        cursor: status === 'loading' ? 'default' : 'pointer',
+        marginBottom: 16,
+      }}>
+      {status === 'loading' ? (
+        /* spinner */
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <circle cx="12" cy="12" r="9" stroke="var(--sage)" strokeWidth="2.5" strokeDasharray="40 20"/>
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="4" fill={color}/>
+          <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.8" fill="none"/>
+          <path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
+      )}
+      {label[status]}
+    </div>
+  );
+}
+
 // ── Signup with age-gate ──────────────────────────────────────────────
 function SignupScreen({ onDone, nav }) {
   const [step, setStep] = useStateO('form'); // 'form' | 'tooYoung'
   const [name, setName] = useStateO('');
   const [email, setEmail] = useStateO('');
   const [district, setDistrict] = useStateO('');
-  const [city, setCity] = useStateO('Lisbon');
+  const [city, setCity] = useStateO('');
   const [dob, setDob] = useStateO('');
   const [err, setErr] = useStateO('');
+  const [geoNote, setGeoNote] = useStateO('');
+
+  const handleLocation = ({ district: d, city: c }) => {
+    if (d) setDistrict(d);
+    if (c) setCity(c);
+    setGeoNote(d && c ? `Detected: ${d}, ${c} — you can edit below.` : 'Location detected — please verify the fields below.');
+    setErr('');
+  };
 
   const submit = () => {
     if (!name.trim() || !email.trim() || !district.trim() || !city.trim() || !dob) {
@@ -51,7 +137,7 @@ function SignupScreen({ onDone, nav }) {
   const field = (label, value, onChange, extra = {}) => (
     <div style={{ marginBottom: 16 }}>
       <Eyebrow>{label}</Eyebrow>
-      <input value={value} onChange={e => onChange(e.target.value)}
+      <input value={value} onChange={e => { onChange(e.target.value); setErr(''); }}
         className="bs" style={{
           display: 'block', width: '100%', marginTop: 8, boxSizing: 'border-box',
           border: '1px solid var(--line)', borderRadius: 13, padding: '13px 14px',
@@ -74,8 +160,28 @@ function SignupScreen({ onDone, nav }) {
         <div style={{ marginTop: 22 }}>
           {field('Your name', name, setName, { placeholder: 'Marie Curie' })}
           {field('Email address', email, setEmail, { type: 'email', placeholder: 'you@example.com' })}
-          {field('Your neighbourhood / district', district, setDistrict, { placeholder: 'e.g. Alfama, Montmartre, Kreuzberg' })}
-          {field('City', city, setCity, { placeholder: 'Lisbon' })}
+
+          {/* Location section */}
+          <div style={{ marginBottom: 16 }}>
+            <Eyebrow>Your neighbourhood</Eyebrow>
+            <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4, marginBottom: 10, lineHeight: 1.4 }}>
+              Only your district is shown to neighbours — never your exact address.
+            </div>
+
+            <LocationButton
+              onResult={handleLocation}
+              onError={(msg) => setErr(msg)}
+            />
+
+            {geoNote && (
+              <div style={{ fontSize: 12, color: 'var(--moss)', fontWeight: 600, marginBottom: 10, marginTop: -8 }}>
+                {geoNote}
+              </div>
+            )}
+
+            {field('Neighbourhood / district', district, setDistrict, { placeholder: 'e.g. Alfama, Montmartre, Kreuzberg' })}
+            {field('City', city, setCity, { placeholder: 'Lisbon' })}
+          </div>
 
           <div style={{ marginBottom: 16 }}>
             <Eyebrow>Date of birth</Eyebrow>
@@ -92,7 +198,7 @@ function SignupScreen({ onDone, nav }) {
         </div>
 
         {err && (
-          <div style={{ fontSize: 13, color: 'var(--terra-deep)', fontWeight: 600, marginBottom: 12 }}>{err}</div>
+          <div style={{ fontSize: 13, color: 'var(--terra-deep)', fontWeight: 600, marginBottom: 12, lineHeight: 1.4 }}>{err}</div>
         )}
 
         <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 16 }}>
@@ -117,10 +223,18 @@ function EditProfileScreen({ nav, profile, onSave }) {
   const [bio, setBio] = useStateO(profile.bio || '');
   const [district, setDistrict] = useStateO(profile.district || '');
   const [city, setCity] = useStateO(profile.city || '');
+  const [geoNote, setGeoNote] = useStateO('');
+  const [err, setErr] = useStateO('');
 
   const save = () => {
     onSave({ name: name.trim(), bio: bio.trim(), district: district.trim(), city: city.trim() });
     nav.back();
+  };
+
+  const handleLocation = ({ district: d, city: c }) => {
+    if (d) setDistrict(d);
+    if (c) setCity(c);
+    setGeoNote(d && c ? `Detected: ${d}, ${c} — you can edit below.` : 'Location detected — please verify the fields below.');
   };
 
   const field = (label, value, onChange, multi = false, hint) => (
@@ -162,8 +276,27 @@ function EditProfileScreen({ nav, profile, onSave }) {
 
         {field('Display name', name, setName)}
         {field('Bio', bio, setBio, true)}
-        {field('Neighbourhood / district', district, setDistrict, false,
-          'Only your district is shown to other users — never your exact address.')}
+
+        <div style={{ marginBottom: 18 }}>
+          <Eyebrow>Neighbourhood / district</Eyebrow>
+          <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 3, marginBottom: 10, lineHeight: 1.4 }}>
+            Only your district is shown to other users — never your exact address.
+          </div>
+          <LocationButton onResult={handleLocation} onError={(msg) => setErr(msg)}/>
+          {geoNote && (
+            <div style={{ fontSize: 12, color: 'var(--moss)', fontWeight: 600, marginBottom: 10, marginTop: -8 }}>
+              {geoNote}
+            </div>
+          )}
+          {err && <div style={{ fontSize: 12, color: 'var(--terra-deep)', fontWeight: 600, marginBottom: 8 }}>{err}</div>}
+          <input value={district} onChange={e => setDistrict(e.target.value)}
+            className="bs" style={{
+              display: 'block', width: '100%', boxSizing: 'border-box',
+              border: '1px solid var(--line)', borderRadius: 13, padding: '13px 14px',
+              fontSize: 15, background: 'var(--card)', color: 'var(--ink)', outline: 'none',
+            }}/>
+        </div>
+
         {field('City', city, setCity)}
 
         <Btn full kind="primary" onClick={save}>Save changes</Btn>
