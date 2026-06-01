@@ -1,0 +1,169 @@
+// bookshelf/screens-onboarding.jsx — Signup age-gate, Edit profile, Cookie banner.
+const { useState: useStateO } = React;
+
+const MIN_AGE = 16; // minimum digital-consent age (configure per jurisdiction)
+
+function Field({ label, children }) {
+  return (
+    <div style={{ marginTop: 16 }}>
+      <div className="bs" style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--forest)', marginBottom: 7, letterSpacing: .2 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+const inputStyle = {
+  width: '100%', boxSizing: 'border-box', border: '1px solid var(--line)', borderRadius: 13,
+  padding: '13px 14px', fontSize: 15, background: 'var(--card)', color: 'var(--ink)', outline: 'none',
+  fontFamily: "'Hanken Grotesk',sans-serif",
+};
+
+// ── Signup with age-gate ──────────────────────────────────────────────
+function SignupScreen({ onDone, nav }) {
+  const [name, setName] = useStateO('');
+  const [email, setEmail] = useStateO('');
+  const [district, setDistrict] = useStateO('');
+  const [city, setCity] = useStateO('');
+  const [dob, setDob] = useStateO('');
+  const [blocked, setBlocked] = useStateO(false);
+
+  const ageFrom = (d) => {
+    if (!d) return null;
+    const b = new Date(d); if (isNaN(b)) return null;
+    const t = new Date(); let a = t.getFullYear() - b.getFullYear();
+    const m = t.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && t.getDate() < b.getDate())) a--;
+    return a;
+  };
+  const age = ageFrom(dob);
+  const valid = name.trim() && email.includes('@') && district.trim() && city.trim() && age != null;
+
+  const submit = () => {
+    if (age != null && age < MIN_AGE) { setBlocked(true); return; }
+    onDone({ name: name.trim(), email: email.trim(), district: district.trim(), city: city.trim(), dob, age });
+  };
+
+  if (blocked) {
+    return (
+      <div className="bs-screen" style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', padding: 30, maxWidth: 320 }}>
+          <div style={{ width: 70, height: 70, borderRadius: '50%', background: 'rgba(168,71,43,0.12)', display: 'grid', placeItems: 'center', margin: '0 auto' }}>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--terra-deep)" strokeWidth="1.8"/><path d="M12 7v6M12 16h.01" stroke="var(--terra-deep)" strokeWidth="2" strokeLinecap="round"/></svg>
+          </div>
+          <div className="bs-serif" style={{ fontSize: 23, color: 'var(--ink)', marginTop: 18 }}>Not quite yet</div>
+          <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.55, marginTop: 10 }}>
+            You need to be at least {MIN_AGE} to use My Bookshelf, in line with data-protection rules. Thanks for your interest — come back soon!
+          </p>
+          <div style={{ marginTop: 22 }}><Btn kind="ghost" onClick={() => setBlocked(false)}>Go back</Btn></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bs-screen">
+      <div className="bs-scroll" style={{ padding: '60px 22px 28px' }}>
+        <ShelfMark size={38}/>
+        <div className="bs-serif" style={{ fontSize: 26, color: 'var(--forest)', marginTop: 14, lineHeight: 1.12 }}>
+          Join your <span style={{ fontStyle: 'italic', color: 'var(--terra)' }}>neighbourhood</span> of readers
+        </div>
+        <p style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 8 }}>
+          Free for 3 months. We only ever show your district — never your exact address.
+        </p>
+
+        <Field label="Your name"><input style={inputStyle} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Mariana Silva"/></Field>
+        <Field label="Email"><input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@email.com"/></Field>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1 }}><Field label="Neighbourhood"><input style={inputStyle} value={district} onChange={e => setDistrict(e.target.value)} placeholder="District"/></Field></div>
+          <div style={{ flex: 1 }}><Field label="City"><input style={inputStyle} value={city} onChange={e => setCity(e.target.value)} placeholder="City"/></Field></div>
+        </div>
+        <Field label="Date of birth">
+          <input style={inputStyle} type="date" value={dob} onChange={e => setDob(e.target.value)} max="2014-12-31"/>
+          <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 6 }}>
+            Used once to confirm you’re {MIN_AGE}+. We store your age band, not your full date of birth.
+          </div>
+        </Field>
+
+        <div style={{ marginTop: 24 }}>
+          <Btn full kind="primary" onClick={submit} style={{ opacity: valid ? 1 : .5 }}>Create account</Btn>
+          <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 12, textAlign: 'center', lineHeight: 1.5 }}>
+            Next you’ll choose your privacy preferences. See our{' '}
+            <span className="bs-press" style={{ color: 'var(--terra)', fontWeight: 700 }} onClick={() => nav.push('terms')}>Terms</span> &amp;{' '}
+            <span className="bs-press" style={{ color: 'var(--terra)', fontWeight: 700 }} onClick={() => nav.push('privacy')}>Privacy Policy</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit profile / settings ───────────────────────────────────────────
+function EditProfileScreen({ profile, onSave, nav }) {
+  const [name, setName] = useStateO(profile.name === 'You' ? '' : profile.name);
+  const [bio, setBio] = useStateO(profile.bio || '');
+  const [district, setDistrict] = useStateO(profile.district || '');
+  const [city, setCity] = useStateO(profile.city || '');
+  const [saved, setSaved] = useStateO(false);
+
+  const save = () => {
+    onSave({ name: name.trim() || 'You', bio: bio.trim(), district: district.trim(), city: city.trim() });
+    setSaved(true); setTimeout(() => nav.back(), 700);
+  };
+
+  return (
+    <div className="bs-screen">
+      <TopBar title="Edit profile" onBack={nav.back}/>
+      <div className="bs-scroll" style={{ padding: '4px 22px 40px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <img src={profile.photo} style={{ width: 88, height: 88, borderRadius: 26, objectFit: 'cover', boxShadow: '0 6px 18px rgba(43,42,38,0.18)' }}/>
+            <div className="bs-press" style={{ position: 'absolute', right: -4, bottom: -4, width: 32, height: 32, borderRadius: '50%', background: 'var(--terra)', display: 'grid', placeItems: 'center', border: '3px solid var(--paper)' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20l4-1 9-9-3-3-9 9-1 4z" stroke="#fff" strokeWidth="2" strokeLinejoin="round"/></svg>
+            </div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 10 }}>Tap to change photo</div>
+        </div>
+
+        <Field label="Name"><input style={inputStyle} value={name} onChange={e => setName(e.target.value)} placeholder="Your name"/></Field>
+        <Field label="Short bio">
+          <textarea style={{ ...inputStyle, resize: 'none', lineHeight: 1.5 }} rows={3} value={bio} onChange={e => setBio(e.target.value)} placeholder="A line about what you read…"/>
+        </Field>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1 }}><Field label="Neighbourhood"><input style={inputStyle} value={district} onChange={e => setDistrict(e.target.value)} placeholder="District"/></Field></div>
+          <div style={{ flex: 1 }}><Field label="City"><input style={inputStyle} value={city} onChange={e => setCity(e.target.value)} placeholder="City"/></Field></div>
+        </div>
+        <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 8, lineHeight: 1.45 }}>
+          Only your neighbourhood and city are shown to others — never your exact address.
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <Btn full kind="primary" onClick={save}>{saved ? '✓ Saved' : 'Save changes'}</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Cookie / SDK banner variant (lighter, web-style) ──────────────────
+function CookieBanner({ onChoice, nav }) {
+  return (
+    <div className="bs" style={{ position: 'absolute', left: 12, right: 12, bottom: 92, zIndex: 45,
+      background: 'var(--card)', borderRadius: 18, padding: 16, boxShadow: '0 12px 34px rgba(43,42,38,0.22)', border: '1px solid var(--line)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--terra)" strokeWidth="1.8"/><circle cx="9" cy="9" r="1.2" fill="var(--terra)"/><circle cx="14" cy="13" r="1.2" fill="var(--terra)"/><circle cx="10" cy="15" r="1.2" fill="var(--terra)"/></svg>
+        <div className="bs-serif" style={{ fontSize: 16, color: 'var(--ink)' }}>A note on cookies</div>
+      </div>
+      <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, margin: '8px 0 13px' }}>
+        We use essential storage to run the app, and optional analytics only if you allow it. You’re in control.
+      </p>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Btn kind="soft" style={{ flex: 1, fontSize: 13.5, padding: '11px' }} onClick={() => onChoice({ analytics: false, personalise: false })}>Reject optional</Btn>
+        <Btn kind="primary" style={{ flex: 1, fontSize: 13.5, padding: '11px' }} onClick={() => onChoice({ analytics: true, personalise: true })}>Accept all</Btn>
+      </div>
+      <div className="bs-press" onClick={() => { onChoice(null); nav.push('privacyData'); }} style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: 'var(--forest)', marginTop: 10 }}>
+        Manage choices
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { SignupScreen, EditProfileScreen, CookieBanner });
